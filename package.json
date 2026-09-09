@@ -4,7 +4,7 @@
     "linkedom": "0.18.13"
   },
   "name": "comfyui-demo",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "description": "ComfyUI 风格离线工作流演示器：可自定义背景分组、JSON 备份、图片恢复与执行模拟",
   "homepage": "https://rakashi409-lab.github.io/ComfyUI-Demo/",

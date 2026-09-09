@@ -1138,7 +1138,7 @@
                         <img src="${src}" alt="">
                         <div class="gh-info">
                             <div class="gh-idx">第 ${i + 1} 次生成</div>
-                            <div class="gh-tag">${used ? '已展示' : next ? '▸ 下一次执行展示' : '等待中'}</div>
+                            <div class="gh-tag">${used ? '已完成' : next ? '▸ 下一个' : '等待中'}</div>
                         </div>
                         <span class="gh-del" data-idx="${i}">×</span>
                     </div>`;

@@ -4,7 +4,7 @@ import argparse
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '2.0.0'
+VERSION = '2.0.1'
 
 def build():
     source = ROOT / 'src'

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComfyUI Demo · 工作流演示</title>
-    <meta name="description" content="ComfyUI 工作流演示器：自由分组、颜色标签、JSON 导入导出、自动保存与图片恢复。无需安装模型。">
+    <title>ComfyUI</title>
+    <meta name="description" content="ComfyUI 工作流编辑：节点、分组、图像与工作流管理。">
     <style>/* STYLES */</style>
 </head>
 <body>
@@ -25,7 +25,7 @@
             <button class="tool edit-action" onclick="app.newWorkflow()">新建</button>
             <button class="tool edit-action" onclick="app.openImport()">导入 JSON</button>
             <button class="tool" onclick="app.exportWorkflow()">导出 JSON</button>
-            <button class="tool" onclick="app.saveNow(true)" title="保存到当前浏览器 (Ctrl+S)">保存</button>
+            <button class="tool" onclick="app.saveNow(true)" title="保存工作流 (Ctrl+S)">保存</button>
             <button class="tool edit-action" onclick="app.addGroupAtCenter()" title="添加背景分组 (G)">＋ 分组</button>
             <span id="save-status" role="status" aria-live="polite">正在恢复…</span>
             <div class="tb-right">
@@ -116,7 +116,7 @@
         <div class="gh-body">
             <div class="gh-upload" id="gh-upload">
                 <div>点击或拖入图片</div>
-                <div style="font-size:10.5px;color:#555;margin-top:3px;">执行时按顺序作为生成结果展示</div>
+                <div style="font-size:10.5px;color:#555;margin-top:3px;">支持拖放或批量导入</div>
             </div>
             <input type="file" id="gh-file-input" accept="image/*" multiple style="display:none;">
             <div class="gh-list" id="gh-list"></div>

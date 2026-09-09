@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComfyUI Demo · 工作流演示</title>
-    <meta name="description" content="ComfyUI 工作流演示器：自由分组、颜色标签、JSON 导入导出、自动保存与图片恢复。无需安装模型。">
+    <title>ComfyUI</title>
+    <meta name="description" content="ComfyUI 工作流编辑：节点、分组、图像与工作流管理。">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -851,7 +851,7 @@ body.is-loading #app { pointer-events:none; opacity:.65; }
             <button class="tool edit-action" onclick="app.newWorkflow()">新建</button>
             <button class="tool edit-action" onclick="app.openImport()">导入 JSON</button>
             <button class="tool" onclick="app.exportWorkflow()">导出 JSON</button>
-            <button class="tool" onclick="app.saveNow(true)" title="保存到当前浏览器 (Ctrl+S)">保存</button>
+            <button class="tool" onclick="app.saveNow(true)" title="保存工作流 (Ctrl+S)">保存</button>
             <button class="tool edit-action" onclick="app.addGroupAtCenter()" title="添加背景分组 (G)">＋ 分组</button>
             <span id="save-status" role="status" aria-live="polite">正在恢复…</span>
             <div class="tb-right">
@@ -942,7 +942,7 @@ body.is-loading #app { pointer-events:none; opacity:.65; }
         <div class="gh-body">
             <div class="gh-upload" id="gh-upload">
                 <div>点击或拖入图片</div>
-                <div style="font-size:10.5px;color:#555;margin-top:3px;">执行时按顺序作为生成结果展示</div>
+                <div style="font-size:10.5px;color:#555;margin-top:3px;">支持拖放或批量导入</div>
             </div>
             <input type="file" id="gh-file-input" accept="image/*" multiple style="display:none;">
             <div class="gh-list" id="gh-list"></div>
@@ -2115,7 +2115,7 @@ body.is-loading #app { pointer-events:none; opacity:.65; }
                         <img src="${src}" alt="">
                         <div class="gh-info">
                             <div class="gh-idx">第 ${i + 1} 次生成</div>
-                            <div class="gh-tag">${used ? '已展示' : next ? '▸ 下一次执行展示' : '等待中'}</div>
+                            <div class="gh-tag">${used ? '已完成' : next ? '▸ 下一个' : '等待中'}</div>
                         </div>
                         <span class="gh-del" data-idx="${i}">×</span>
                     </div>`;
@@ -2356,7 +2356,7 @@ const finite = (value, fallback, min, max) => Number.isFinite(Number(value)) ? M
 const colorValid = value => /^#[0-9a-f]{6}$/i.test(value);
 
 Object.assign(app, {
-    version: '2.0.0', groups: [], nextGroupId: 1, selectedGroup: null,
+    version: '2.0.1', groups: [], nextGroupId: 1, selectedGroup: null,
     workflowName: '未命名工作流', settings: {autoSave: true, speed: 1, groupColor: '#28779a'},
     notifications: [], _initializing: true, _saveRevision: 0, _savedRevision: 0,
     _pendingImages: 0, _imageEpoch: 0, _saveChain: Promise.resolve(),
@@ -2566,7 +2566,7 @@ Object.assign(app, {
         if(this.isRunning)return;const name=window.prompt('工作流名称',this.workflowName);
         if(name!==null){this.workflowName=name.trim().slice(0,120)||'未命名工作流';this.updateWorkflowTitle();this.commit();}
     },
-    updateWorkflowTitle(){document.getElementById('workflow-name').textContent=this.workflowName;document.title=this.workflowName+' · ComfyUI Demo';},
+    updateWorkflowTitle(){document.getElementById('workflow-name').textContent=this.workflowName;document.title=this.workflowName+' · ComfyUI';},
     loadPresetWorkflow() {
         if(this.isRunning || !this.confirmReplace())return;
         this._suspendHistory=true;
@@ -2604,7 +2604,7 @@ Object.assign(app, {
     showResultOnNode(node,src){
         node.resultImage=src;const el=this.nodeEl(node.id);if(!el)return;
         let box=el.querySelector('.save-result');if(!box){box=document.createElement('div');box.className='image-preview save-result';el.querySelector('.node-body').appendChild(box);}
-        box.innerHTML=`<img src="${src}" alt="演示结果">`;box.querySelector('img').onload=()=>this.renderConnections();this.attachDownload(node);this.renderConnections();
+        box.innerHTML=`<img src="${src}" alt="输出图像">`;box.querySelector('img').onload=()=>this.renderConnections();this.attachDownload(node);this.renderConnections();
     },
     cleanFilename(name){return String(name||'ComfyUI').replace(/[<>:"/\\|?*\x00-\x1f]/g,'_').slice(0,100)||'ComfyUI';},
     downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=this.cleanFilename(name);document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);},
@@ -2614,7 +2614,7 @@ Object.assign(app, {
         this.downloadBlob(new Blob([bytes],{type:mime}),`${name}.${mime.split('/')[1]==='jpeg'?'jpg':mime.split('/')[1]}`);
     },
     openImport(){if(!this.isRunning)document.getElementById('workflow-file').click();},
-    exportWorkflow(){const data=this.snapshot();data.savedAt=new Date().toISOString();this.downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),this.workflowName+'.json');this.notify('JSON 已导出，包含分组、参数、图片和演示进度');},
+    exportWorkflow(){const data=this.snapshot();data.savedAt=new Date().toISOString();this.downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),this.workflowName+'.json');this.notify('工作流已导出');},
 
     async readImage(file){
         if(!/^image\/(png|jpeg|webp|gif|bmp|avif)$/.test(file.type))throw Error('请选择 PNG、JPEG、WebP、GIF、BMP 或 AVIF 图片');
@@ -2697,7 +2697,7 @@ Object.assign(app, {
                 w:geometry(native?raw.bounding?.[2]:raw.w,500,120),h:geometry(native?raw.bounding?.[3]:raw.h,360,80),
                 opacity:geometry(raw.opacity,.16,0,1),fontSize:geometry(raw.fontSize||raw.font_size,20,12,64),moveNodes:raw.moveNodes!==false};
         });
-        const genImages=array(data.genImages||[],'演示图片',500).map(image);
+        const genImages=array(data.genImages||[],'图像',500).map(image);
         const cursor=geometry(data.genCursor,0,0,genImages.length);if(!Number.isInteger(cursor))throw Error('图片播放位置无效');
         const state={format:'comfyui-demo',schemaVersion:2,name:String(data.name||'导入工作流').slice(0,120),nodes,connections,groups,
             nextId:Math.max(0,...ids)+1,nextGroupId:Math.max(0,...groupIds)+1,genImages,genCursor:cursor,
@@ -2716,7 +2716,7 @@ Object.assign(app, {
     async openStorage(){
         if(this._db)return this._db;
         this._db=await new Promise((resolve,reject)=>{
-            if(!window.indexedDB){reject(Error('此浏览器不支持本地数据库'));return;}
+            if(!window.indexedDB){reject(Error('无法打开本地存储'));return;}
             const request=indexedDB.open('comfyui-demo-v2',1);
             request.onupgradeneeded=()=>request.result.createObjectStore('documents');
             request.onerror=()=>reject(request.error);request.onblocked=()=>reject(Error('存储被其他页面占用，请关闭旧页面后重试'));
@@ -2746,7 +2746,7 @@ Object.assign(app, {
                 await new Promise((resolve,reject)=>{const tx=db.transaction('documents','readwrite');tx.objectStore('documents').put(state,'current');tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error||Error('存储空间不足'));tx.onerror=()=>reject(tx.error);});
                 this._savedRevision=revision;this._storageError=null;
                 this.setSaveStatus(this._saveRevision===revision?'已保存 · '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'待保存…');
-                if(manual)this.toast('已保存到当前浏览器，包含图片');
+                if(manual)this.toast('工作流已保存');
             }catch(error){this._storageError=error.message;this.setSaveStatus('保存失败，请导出 JSON');if(manual||!this._saveWarned){this._saveWarned=true;this.notify('自动保存不可用或空间不足，请导出 JSON 备份。');}}
         });
         return this._saveChain;
@@ -2755,10 +2755,10 @@ Object.assign(app, {
     notify(message){this.notifications.unshift({time:new Date().toLocaleTimeString(),message});this.notifications=this.notifications.slice(0,80);this.toast(message);},
     showDialog(title,html){const dialog=document.getElementById('editor-dialog');document.getElementById('dialog-title').textContent=title;document.getElementById('dialog-body').innerHTML=html;if(!dialog.open)dialog.showModal();},
     showNotifications(){this.showDialog('通知与执行记录',this.notifications.length?this.notifications.map(n=>`<div class="log-entry"><time>${esc(n.time)}</time>${esc(n.message)}</div>`).join(''):'暂无记录');},
-    showWorkflowInfo(){this.showDialog('工作流',`<p>${esc(this.workflowName)}</p><p>${this.nodes.length} 个节点 · ${this.connections.length} 条连线 · ${this.groups.length} 个分组</p><p>演示图片 ${this.genImages.length} 张，已展示 ${this.genCursor} 张。</p><p class="hint">版本 ${this.version} · 纯前端工作流演示。模型参数用于展示，执行结果来自预上传图片。</p><div class="inline-fields"><button class="tool" onclick="app.exportWorkflow()">导出 JSON</button><button class="tool" onclick="document.getElementById('editor-dialog').close();app.renameWorkflow()">重命名</button></div>`);},
+    showWorkflowInfo(){this.showDialog('工作流',`<p>${esc(this.workflowName)}</p><p>${this.nodes.length} 个节点 · ${this.connections.length} 条连线 · ${this.groups.length} 个分组</p><p>图像 ${this.genImages.length} 张 · 当前进度 ${this.genCursor} / ${this.genImages.length}</p><div class="inline-fields"><button class="tool" onclick="app.exportWorkflow()">导出 JSON</button><button class="tool" onclick="document.getElementById('editor-dialog').close();app.renameWorkflow()">重命名</button></div>`);},
     showSettings(){
         if(this.isRunning){this.toast('请先停止执行再修改设置');return;}
-        this.showDialog('设置',`<label class="field"><span><input id="setting-autosave" type="checkbox" ${this.settings.autoSave?'checked':''}> 自动保存工作流和图片</span><small>保存在当前浏览器。跨设备使用或清理浏览器前，请导出 JSON。</small></label><label class="field">演示速度<select id="setting-speed">${[.25,.5,1,2,4].map(n=>`<option value="${n}" ${n===this.settings.speed?'selected':''}>${n}×</option>`).join('')}</select></label><label class="field">新分组默认颜色<input id="setting-color" type="color" value="${this.settings.groupColor}"></label><button class="tool" id="setting-save">立即保存</button>`);
+        this.showDialog('设置',`<label class="field"><span><input id="setting-autosave" type="checkbox" ${this.settings.autoSave?'checked':''}> 自动保存工作流和图片</span><small>自动保存到本地。跨设备使用时，请导出工作流。</small></label><label class="field">执行速度<select id="setting-speed">${[.25,.5,1,2,4].map(n=>`<option value="${n}" ${n===this.settings.speed?'selected':''}>${n}×</option>`).join('')}</select></label><label class="field">新分组默认颜色<input id="setting-color" type="color" value="${this.settings.groupColor}"></label><button class="tool" id="setting-save">立即保存</button>`);
         document.getElementById('setting-autosave').onchange=e=>{this.settings.autoSave=e.target.checked;this.commit();this.saveNow(true);};
         document.getElementById('setting-speed').onchange=e=>{this.settings.speed=Number(e.target.value);this.commit();};
         document.getElementById('setting-color').onchange=e=>{this.settings.groupColor=e.target.value;this.commit();};
@@ -2766,7 +2766,7 @@ Object.assign(app, {
     },
     showModels(){
         const models=this.nodes.filter(n=>['UNETLoader','CLIPLoader','VAELoader'].includes(n.type));
-        this.showDialog('模型库',`<p class="hint">当前工作流的演示模型名称，可修改显示名称。此程序不加载模型权重。</p>${models.length?models.map(n=>`<label class="field">${esc(NODES[n.type].title)} #${n.id}<input data-model-id="${n.id}" value="${esc(n.widgets[0].value)}" ${this.isRunning?'disabled':''}></label>`).join(''):'请先添加加载器节点，或加载预设工作流。'}`);
+        this.showDialog('模型库',`<p class="hint">管理当前工作流使用的模型名称。</p>${models.length?models.map(n=>`<label class="field">${esc(NODES[n.type].title)} #${n.id}<input data-model-id="${n.id}" value="${esc(n.widgets[0].value)}" ${this.isRunning?'disabled':''}></label>`).join(''):'请先添加加载器节点，或加载预设工作流。'}`);
         document.querySelectorAll('[data-model-id]').forEach(input=>input.onchange=()=>{
             if(this.isRunning)return;const node=this.nodes.find(n=>n.id===Number(input.dataset.modelId));if(!node)return;
             const value=input.value.trim().slice(0,255);if(!value)return;const widget=node.widgets[0];widget.value=value;if(!widget.options.includes(value))widget.options.push(value);
@@ -2774,11 +2774,11 @@ Object.assign(app, {
         });
     },
     showGallery(){
-        const images=[];for(const n of this.nodes){for(const w of n.widgets)if(w.type==='image'&&w.value)images.push({src:w.value,name:w.filename||'输入图片'});if(n.resultImage)images.push({src:n.resultImage,name:'输出图片'});}this.genImages.forEach((src,i)=>images.push({src,name:'演示图片 '+(i+1)}));
-        this.showDialog('图像',images.length?'<div class="gallery">'+images.map((im,i)=>`<figure><img src="${im.src}" alt="${esc(im.name)}"><figcaption>${esc(im.name)}</figcaption><button class="tool" data-image-download="${i}">下载</button></figure>`).join('')+'</div>':'暂无图片。可在加载图像节点或生成历史面板中上传。');
+        const images=[];for(const n of this.nodes){for(const w of n.widgets)if(w.type==='image'&&w.value)images.push({src:w.value,name:w.filename||'输入图片'});if(n.resultImage)images.push({src:n.resultImage,name:'输出图片'});}this.genImages.forEach((src,i)=>images.push({src,name:'图像 '+(i+1)}));
+        this.showDialog('图像',images.length?'<div class="gallery">'+images.map((im,i)=>`<figure><img src="${im.src}" alt="${esc(im.name)}"><figcaption>${esc(im.name)}</figcaption><button class="tool" data-image-download="${i}">下载</button></figure>`).join('')+'</div>':'暂无图像。');
         document.querySelectorAll('[data-image-download]').forEach(button=>button.onclick=()=>{const im=images[Number(button.dataset.imageDownload)];this.downloadImage(im.src,im.name);});
     },
-    showHelp(){this.showDialog('操作帮助',`<ul><li>双击 / 右键空白处添加节点；拖动节点标题移动。</li><li>按 G 或点击「＋ 分组」创建背景框。标题与右下角可拖动，编辑面板支持名称、HEX 颜色、透明度和精确尺寸。</li><li>分组拖动默认携带完整包围的节点；按 Alt 仅移动框。</li><li>Ctrl/Cmd+S 保存，Ctrl/Cmd+Shift+S 导出，Ctrl/Cmd+O 导入。</li><li>Ctrl/Cmd+Z 撤销，Ctrl/Cmd+Shift+Z / Ctrl+Y 重做，Ctrl/Cmd+D 复制选中对象。</li><li>Delete 删除选中节点或分组；删除分组会保留节点。</li><li>F 适应画布；滚轮缩放；空白处左键 / 任意位置中键平移。</li><li>Ctrl/Cmd+Enter 执行 / 停止。输出图从「生成历史」预上传的图片中依次选取。</li></ul><p class="hint">JSON 备份包含图片。支持本程序完整备份，以及节点库中已支持类型的 ComfyUI 画布 JSON；原版工作流引用的外部图片需要重新上传。</p>`);},
+    showHelp(){this.showDialog('操作帮助',`<ul><li>双击 / 右键空白处添加节点；拖动节点标题移动。</li><li>按 G 或点击「＋ 分组」创建背景框。标题与右下角可拖动，编辑面板支持名称、HEX 颜色、透明度和精确尺寸。</li><li>分组拖动默认携带完整包围的节点；按 Alt 仅移动框。</li><li>Ctrl/Cmd+S 保存，Ctrl/Cmd+Shift+S 导出，Ctrl/Cmd+O 导入。</li><li>Ctrl/Cmd+Z 撤销，Ctrl/Cmd+Shift+Z / Ctrl+Y 重做，Ctrl/Cmd+D 复制选中对象。</li><li>Delete 删除选中节点或分组；删除分组会保留节点。</li><li>F 适应画布；滚轮缩放；空白处左键 / 任意位置中键平移。</li><li>Ctrl/Cmd+Enter 执行 / 停止。可在图像面板查看和下载结果。</li></ul><p class="hint">JSON 备份包含图片。支持本程序完整备份，以及节点库中已支持类型的 ComfyUI 画布 JSON；原版工作流引用的外部图片需要重新上传。</p>`);},
 });
 
 Object.assign(app, {
@@ -2837,8 +2837,8 @@ Object.assign(app, {
             }
             if(result){for(const n of this.nodes.filter(n=>n.type==='SaveImage'))this.showResultOnNode(n,result);if(this.genCursor<this.genImages.length)this.genCursor++;this.renderGenList();}
             this.advanceSeeds();this.commit();
-            this.notify('执行完成'+(!hasOutput?'（没有输出节点，图片进度保持不变）':!result?'（未上传演示图片）':''));
-        }catch(error){this._controller.abort();await Promise.allSettled(tasks);this.notify(error.name==='AbortError'?'执行已停止，图片进度和种子保持不变':'执行失败：'+error.message);}
+            this.notify('执行完成');
+        }catch(error){this._controller.abort();await Promise.allSettled(tasks);this.notify(error.name==='AbortError'?'执行已停止':'执行失败：'+error.message);}
         finally{
             this._gpAdvance=null;progress.style.width='0%';button.classList.remove('running');badge.textContent='队列 0';document.getElementById('run-label').textContent='执行';document.getElementById('run-icon').textContent='▶';document.getElementById('app').classList.remove('is-running');document.querySelectorAll('.edit-action').forEach(el=>el.disabled=false);this.isRunning=false;this._controller=null;
         }

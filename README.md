@@ -4,7 +4,7 @@
 
 **在线使用：[rakashi409-lab.github.io/ComfyUI-Demo](https://rakashi409-lab.github.io/ComfyUI-Demo/)**
 
-**免安装包：[下载 ComfyUI-Demo v2.0.0 ZIP](https://github.com/rakashi409-lab/ComfyUI-Demo/raw/refs/heads/main/downloads/ComfyUI-Demo-v2.0.0.zip)**
+**免安装包：[下载 ComfyUI-Demo v2.0.1 ZIP](https://github.com/rakashi409-lab/ComfyUI-Demo/raw/refs/heads/main/downloads/ComfyUI-Demo-v2.0.1.zip)**
 
 解压后双击 `ComfyUI.html` 或 `启动演示.bat`。`index.html` 与 `ComfyUI.html` 都是完整独立页面，不依赖网络资源。推荐使用近期版本的 Chrome / Edge / Firefox。
 
@@ -50,7 +50,7 @@ python scripts/build.py
 python scripts/build.py --package
 ```
 
-第二条命令同时更新 `downloads/ComfyUI-Demo-v2.0.0.zip`。用户使用时不需要 Python 或 Node.js。
+第二条命令同时更新 `downloads/ComfyUI-Demo-v2.0.1.zip`。用户使用时不需要 Python 或 Node.js。
 
 开发测试使用 Node.js 20 或更新版本；两个开发依赖仅用于 DOM 和 IndexedDB 行为测试，不会打包进用户页面：
 
