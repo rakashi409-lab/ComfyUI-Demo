@@ -1,0 +1,20 @@
+{
+  "devDependencies": {
+    "fake-indexeddb": "6.2.5",
+    "linkedom": "0.18.13"
+  },
+  "name": "comfyui-demo",
+  "version": "2.0.0",
+  "private": true,
+  "description": "ComfyUI 风格离线工作流演示器：可自定义背景分组、JSON 备份、图片恢复与执行模拟",
+  "homepage": "https://rakashi409-lab.github.io/ComfyUI-Demo/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rakashi409-lab/ComfyUI-Demo.git"
+  },
+  "scripts": {
+    "build": "python scripts/build.py",
+    "test": "node --test tests/*.test.cjs",
+    "package": "python scripts/build.py --package"
+  }
+}
